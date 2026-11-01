@@ -22,11 +22,6 @@ jobs:
       - name: Show Xcode Version
         run: xcodebuild -version
 
-      # ⚠️ 请将您的 .p12 和 .mobileprovision 转成 Base64 字符串，
-      #    并存入 GitHub 仓库的 Secrets：
-      #    BUILD_CERTIFICATE_BASE64, P12_PASSWORD,
-      #    PROVISIONING_PROFILE_BASE64
-
       - name: Install Apple Certificate
         uses: apple-actions/import-codesign-certs@v2
         with:
@@ -39,7 +34,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
           cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      # 自动生成导出配置，无需在仓库中预先提交 ExportOptions.plist
       - name: Generate ExportOptions.plist
         run: |
           cat > ExportOptions.plist <<'EOF'
@@ -50,7 +44,14 @@ jobs:
             <key>method</key>
             <string>ad-hoc</string>
             <key>signingStyle</key>
-            <string>automatic</string>
+            <string>manual</string>
+            <key>teamID</key>
+            <string>67RLJX8U9X</string>
+            <key>provisioningProfiles</key>
+            <dict>
+                <key>com.chengcheng.zeo</key>
+                <string>OOQ_ADHoc</string>
+            </dict>
             <key>stripSwiftSymbols</key>
             <true/>
             <key>destination</key>
@@ -58,6 +59,7 @@ jobs:
           </dict>
           </plist>
           EOF
+
       - name: Build iOS
         run: |
           WS=$(ls -d *.xcworkspace 2>/dev/null | head -n 1)
@@ -74,6 +76,9 @@ jobs:
           fi
           echo "构建目标：$TARGET | Scheme：$SCHEME"
           mkdir -p build/ipa
-          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive
+          
+          # 编译并归档（注入签名参数）
+          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=67RLJX8U9X PROVISIONING_PROFILE_SPECIFIER="OOQ_ADHoc"
+          
+          # 导出 IPA（读取上面的 ExportOptions.plist）
           xcodebuild -exportArchive -archivePath "build/$SCHEME.xcarchive" -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
-
