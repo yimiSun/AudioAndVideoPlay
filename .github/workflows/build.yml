@@ -78,7 +78,7 @@ jobs:
           mkdir -p build/ipa
           
           # 编译并归档（注入签名参数）
-          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=67RLJX8U9X PROVISIONING_PROFILE_SPECIFIER="OOQ_ADHoc"
+          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=67RLJX8U9X PROVISIONING_PROFILE_SPECIFIER="OOQ_ADHoc" PRODUCT_BUNDLE_IDENTIFIER="com.chengcheng.zeo" CODE_SIGN_IDENTITY="Apple Distribution"
           
           # 导出 IPA（读取上面的 ExportOptions.plist）
           xcodebuild -exportArchive -archivePath "build/$SCHEME.xcarchive" -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
