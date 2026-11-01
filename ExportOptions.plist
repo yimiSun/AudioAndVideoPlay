@@ -5,11 +5,11 @@
     <key>method</key>
     <string>ad-hoc</string>
     <key>teamID</key>
-    <string>你的TeamID</string>
+    <string>67RLJX8U9X</string>
     <key>provisioningProfiles</key>
     <dict>
         <key>com.chengcheng.zeo</key>
-        <string>你的描述文件名称</string> <!-- 比如 OOQ_ADHoc -->
+        <string>OOQ_ADHoc</string> <!-- 比如 OOQ_ADHoc -->
     </dict>
     <key>signingStyle</key>
     <string>manual</string>
