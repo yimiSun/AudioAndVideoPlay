@@ -16,9 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
-
       # ⚠️ 请将您的 .p12 和 .mobileprovision 转成 Base64 字符串，
       #    并存入 GitHub 仓库的 Secrets：
       #    BUILD_CERTIFICATE_BASE64, P12_PASSWORD,
@@ -38,6 +35,5 @@ jobs:
 
       - name: Build iOS
         run: |
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath build/Runner.xcarchive archive
-          xcodebuild -exportArchive -archivePath build/Runner.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
-
+          xcodebuild -workspace AudioAndVideoPlay.xcworkspace -scheme AudioAndVideoPlay -configuration Release -sdk iphoneos -archivePath build/AudioAndVideoPlay.xcarchive archive
+          xcodebuild -exportArchive -archivePath build/AudioAndVideoPlay.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
