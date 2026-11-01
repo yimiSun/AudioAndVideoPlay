@@ -1,4 +1,7 @@
-name: Build iOS
+# 本配置适用于 GitHub Actions
+# 适用于：ios | 技术栈：native_ios
+
+name: Build AudioAndVideoPlay
 
 on:
   push:
@@ -13,29 +16,64 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. 安装证书 (使用 Secrets)
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Show Xcode Version
+        run: xcodebuild -version
+
+      # ⚠️ 请将您的 .p12 和 .mobileprovision 转成 Base64 字符串，
+      #    并存入 GitHub 仓库的 Secrets：
+      #    BUILD_CERTIFICATE_BASE64, P12_PASSWORD,
+      #    PROVISIONING_PROFILE_BASE64
+
       - name: Install Apple Certificate
         uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           p12-password: ${{ secrets.P12_PASSWORD }}
 
-      # 2. 安装描述文件 (使用 Secrets)
       - name: Install Provisioning Profile
         run: |
           echo "${{ secrets.PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > /tmp/profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
           cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      # 3. 编译并导出 ipa (已修正为 -project 且移除了写死的 Xcode 版本)
-      - name: Build and Export IPA
+      # 自动生成导出配置，无需在仓库中预先提交 ExportOptions.plist
+      - name: Generate ExportOptions.plist
         run: |
-          xcodebuild -project AudioAndVideoPlay.xcodeproj -scheme AudioAndVideoPlay -configuration Release -sdk iphoneos -archivePath build/AudioAndVideoPlay.xcarchive archive
-          xcodebuild -exportArchive -archivePath build/AudioAndVideoPlay.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
-      
-      # 4. 上传打包产物 (新增，方便你下载)
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: iOS-App
-          path: build/ipa/*.ipa
+          cat > ExportOptions.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>ad-hoc</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>destination</key>
+            <string>export</string>
+          </dict>
+          </plist>
+          EOF
+      - name: Build iOS
+        run: |
+          WS=$(ls -d *.xcworkspace 2>/dev/null | head -n 1)
+          PROJ=$(ls -d *.xcodeproj 2>/dev/null | head -n 1)
+          if [ -n "$WS" ]; then
+            TARGET="-workspace $WS"
+            SCHEME=$(basename "$WS" .xcworkspace)
+          elif [ -n "$PROJ" ]; then
+            TARGET="-project $PROJ"
+            SCHEME=$(basename "$PROJ" .xcodeproj)
+          else
+            echo "::error::未找到 .xcworkspace 或 .xcodeproj，无法继续构建"
+            exit 1
+          fi
+          echo "构建目标：$TARGET | Scheme：$SCHEME"
+          mkdir -p build/ipa
+          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive
+          xcodebuild -exportArchive -archivePath "build/$SCHEME.xcarchive" -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
+

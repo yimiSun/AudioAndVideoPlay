@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>method</key>
-    <string>ad-hoc</string>
-    <key>teamID</key>
-    <string>67RLJX8U9X</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.chengcheng.zeo</key>
-        <string>OOQ_ADHoc</string> <!-- 比如 OOQ_ADHoc -->
-    </dict>
-    <key>signingStyle</key>
-    <string>manual</string>
-</dict>
-</plist>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>ad-hoc</string>
+            <key>signingStyle</key>
+            <string>manual</string>  <!-- 强制手动 -->
+            <key>teamID</key>
+            <string>67RLJX8U9X</string> <!-- 你的 Team ID -->
+            <key>provisioningProfiles</key>
+            <dict>
+                <key>com.chengcheng.zeo</key>
+                <string>OOQ_ADHoc</string> <!-- 你的描述文件注册名 -->
+            </dict>
+          </dict>
+          </plist>
