@@ -5,13 +5,13 @@
             <key>method</key>
             <string>ad-hoc</string>
             <key>signingStyle</key>
-            <string>manual</string>  <!-- 强制手动 -->
+            <string>manual</string>
             <key>teamID</key>
-            <string>67RLJX8U9X</string> <!-- 你的 Team ID -->
+            <string>67RLJX8U9X</string>
             <key>provisioningProfiles</key>
             <dict>
                 <key>com.chengcheng.zeo</key>
-                <string>OOQ_ADHoc</string> <!-- 你的描述文件注册名 -->
+                <string>OOQ_ADHoc</string>
             </dict>
           </dict>
           </plist>
