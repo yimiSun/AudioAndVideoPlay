@@ -71,14 +71,13 @@ jobs:
             TARGET="-project $PROJ"
             SCHEME=$(basename "$PROJ" .xcodeproj)
           else
-            echo "::error::未找到 .xcworkspace 或 .xcodeproj，无法继续构建"
+            echo "::error::未找到工程文件"
             exit 1
           fi
+          
+          # 【新增这一行】暴力把工程里的所有 7.0 替换成 12.0
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' $(find . -name project.pbxproj)
+
           echo "构建目标：$TARGET | Scheme：$SCHEME"
           mkdir -p build/ipa
-          
-          # 编译并归档（注入签名参数）
-          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=67RLJX8U9X PROVISIONING_PROFILE_SPECIFIER="OOQ_ADHoc" PRODUCT_BUNDLE_IDENTIFIER="com.chengcheng.zeo" CODE_SIGN_IDENTITY="Apple Distribution"
-          
-          # 导出 IPA（读取上面的 ExportOptions.plist）
-          xcodebuild -exportArchive -archivePath "build/$SCHEME.xcarchive" -exportOptionsPlist ExportOptions.plist -exportPath build/ipa
+          xcodebuild $TARGET -scheme "$SCHEME" -configuration Release -sdk iphoneos -archivePath "build/$SCHEME.xcarchive" archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=67RLJX8U9X PROVISIONING_PROFILE_SPECIFIER="OOQ_ADHoc" PRODUCT_BUNDLE_IDENTIFIER="com.chengcheng.zeo" CODE_SIGN_IDENTITY="Apple Distribution" IPHONEOS_DEPLOYMENT_TARGET=12.0
